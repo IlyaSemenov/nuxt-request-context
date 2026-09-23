@@ -1,0 +1,79 @@
+name: Test and Release
+
+env:
+  # Keep in sync with .changeset/config.json:baseBranch
+  MAIN_REF: refs/heads/main
+
+on:
+  push:
+    branches: ["**"]
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+# Publish to npm with OIDC
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+jobs:
+  test-and-release:
+    name: Test and Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup mise
+        uses: jdx/mise-action@v4
+        with:
+          version: 2026.7.15
+
+      # for npx publish
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Install deps
+        run: bun install --frozen-lockfile
+
+      - name: Build package
+        run: bun run build
+
+      - name: Typecheck package
+        run: bun run types
+
+      - name: Test package
+        run: bun run test
+
+      - name: Install browser for Nuxt integration tests
+        run: bun run playwright install --with-deps chromium-headless-shell
+
+      - name: Test module with Nuxt
+        run: bun run test:nuxt
+
+      - name: Capture release version
+        if: ${{ github.ref == env.MAIN_REF }}
+        run: |
+          npx @changesets/cli status --output=release.json
+          RELEASE_VERSION="$(jq -r '.releases[0].newVersion // empty' release.json)"
+          if [ -z "$RELEASE_VERSION" ]; then
+            RELEASE_VERSION="$(jq -r '.version' package.json)"
+          fi
+          echo "RELEASE=Version $RELEASE_VERSION" >> "$GITHUB_ENV"
+          rm release.json
+
+      - name: Create Release Pull Request or Publish to npm
+        if: ${{ github.ref == env.MAIN_REF }}
+        uses: changesets/action@v1
+        with:
+          publish: npx changeset publish
+          title: ${{ env.RELEASE }}
+          commit: ${{ env.RELEASE }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+          # Bootstrap only. Remove after configuring Trusted Publishing.
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
