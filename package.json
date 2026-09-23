@@ -1,6 +1,6 @@
 {
   "name": "nuxt-request-context",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "packageManager": "bun@1.4.2",
   "description": "Provide typed request-specific data to Nuxt before the initial render.",
   "keywords": [
