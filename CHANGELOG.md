@@ -1,5 +1,15 @@
 # nuxt-request-context
 
+## 0.2.0
+
+### Minor Changes
+
+- 1eb7653: Add typed `getRequestContext(event)` access for Nitro server code.
+
+### Patch Changes
+
+- 1f756ab: Prepare request context when Nuxt renders extracted payload requests.
+
 ## 0.1.1
 
 ### Patch Changes
