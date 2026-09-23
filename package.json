@@ -1,9 +1,15 @@
 {
   "name": "nuxt-request-context",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "packageManager": "bun@1.4.2",
   "description": "Provide typed request-specific data to Nuxt before the initial render.",
-  "keywords": ["nuxt", "nuxt-module", "request-context", "ssr", "spa"],
+  "keywords": [
+    "nuxt",
+    "nuxt-module",
+    "request-context",
+    "ssr",
+    "spa"
+  ],
   "author": "Ilya Semenov",
   "license": "MIT",
   "repository": {
@@ -24,7 +30,11 @@
     },
     "./package.json": "./package.json"
   },
-  "files": ["README.md", "dist", "templates"],
+  "files": [
+    "README.md",
+    "dist",
+    "templates"
+  ],
   "publishConfig": {
     "access": "public",
     "provenance": true
