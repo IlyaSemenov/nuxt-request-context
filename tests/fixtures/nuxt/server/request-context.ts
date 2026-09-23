@@ -6,6 +6,7 @@ export default defineRequestContextProvider({
       throw new Error("private detail")
     }
     await new Promise((resolve) => setTimeout(resolve, 10))
+    event.context.requestContextResolveCount = (event.context.requestContextResolveCount ?? 0) + 1
     return { title: `Page ${event.path}`, path: event.path }
   },
   onError(error, event) {

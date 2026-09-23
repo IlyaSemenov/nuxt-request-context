@@ -54,11 +54,30 @@ Treat the result as read-only while rendering so the server and browser receive 
 For prerendered pages, the provider runs at build time.
 Every visitor receives the same context, so do not prerender pages that need per-user data.
 
+## Server access
+
+Nitro plugins can read the prepared context from the current `H3Event` with `getRequestContext(event)`.
+Its return type is inferred from the provider, just like `useRequestContext()`.
+
+```ts
+// server/plugins/head.ts
+export default defineNitroPlugin((nitro) => {
+  nitro.hooks.hook("render:html", (html, { event }) => {
+    const { user } = getRequestContext(event)
+    if (user) html.head.push('<meta name="signed-in" content="true">')
+  })
+})
+```
+
+Use it after the provider has run, such as in `render:html`.
+It throws if no context was prepared for the event.
+
 ## Security
 
 Everything your provider returns is sent to the requesting visitor's browser.
 Return only data that visitor may see, and never include credentials or server-only fields.
 Disable shared HTML caching, including CDN caching, for pages with per-user context.
+Keep server-only data outside `resolve()` and read it separately in your server code.
 
 ## Errors
 

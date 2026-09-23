@@ -83,6 +83,10 @@ async function checkMode(ssr: boolean) {
         )?.[1]
         assert(serialized, `${path}: context data is missing from HTML`)
         assert.deepEqual(parse(serialized), { title: `Page ${path}`, path })
+        assert(
+          html.includes(`<meta name="request-context-path" content="${path}" data-resolves="1">`),
+          `${path}: server plugin did not read the prepared context exactly once`,
+        )
         assert.equal(html.includes('id="context-title"'), ssr, `${path}: unexpected SSR output`)
 
         const page = await browser.newPage()
@@ -113,6 +117,13 @@ async function checkMode(ssr: boolean) {
       const emptyError = await fetch(origin + "/empty-error")
       assert.equal(emptyError.status, 500)
       assert.equal(await emptyError.text(), "")
+
+      const apiResponse = await fetch(origin + "/api/no-context")
+      assert.equal(apiResponse.status, 200)
+      assert.equal(
+        await apiResponse.text(),
+        "nuxt-request-context: no request context was prepared for this event.",
+      )
     } finally {
       await browser.close()
     }

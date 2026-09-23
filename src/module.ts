@@ -2,6 +2,7 @@ import { isAbsolute, resolve } from "node:path"
 
 import {
   addImports,
+  addServerImports,
   addServerPlugin,
   addTemplate,
   createResolver,
@@ -44,11 +45,6 @@ export default defineNuxtModule<ModuleOptions>({
     nuxt.options.alias["#nuxt-request-context/provider"] = providerPath
     nuxt.options.alias["#nuxt-request-context"] = resolveModulePath("./runtime/context")
 
-    nuxt.hook("nitro:config", (config) => {
-      config.alias ??= {}
-      config.alias["#nuxt-request-context/provider"] = providerPath
-    })
-
     addServerPlugin(resolveModulePath("./runtime/plugin"))
 
     const composable = addTemplate({
@@ -57,5 +53,31 @@ export default defineNuxtModule<ModuleOptions>({
       write: true,
     })
     addImports({ name: "useRequestContext", from: composable.dst })
+
+    // Nitro skips TypeScript transforms inside Nuxt's node_modules cache.
+    // Adjacent declarations type both automatic and explicit imports of the JavaScript module.
+    addTemplate({
+      filename: "request-context/server.d.ts",
+      src: resolveModulePath("../templates/server.d.ts"),
+      write: true,
+    })
+    const server = addTemplate({
+      filename: "request-context/server.js",
+      getContents: () => 'export { getRequestContext } from "#nuxt-request-context"\n',
+      write: true,
+    })
+    addServerImports({
+      name: "getRequestContext",
+      from: server.dst,
+    })
+
+    nuxt.hook("nitro:config", (config) => {
+      config.alias ??= {}
+      config.alias["#nuxt-request-context/provider"] = providerPath
+      // Resolve the generated re-export's Nuxt alias instead of externalizing it in development.
+      config.externals ??= {}
+      config.externals.inline ??= []
+      config.externals.inline.push(server.dst)
+    })
   },
 })
