@@ -131,6 +131,13 @@ async function checkMode(ssr: boolean) {
         await apiResponse.text(),
         "nuxt-request-context: no request context was prepared for this event.",
       )
+
+      const appContextResponse = await fetch(origin + "/api/app-context")
+      assert.equal(appContextResponse.status, 200)
+      assert.equal(
+        await appContextResponse.text(),
+        "nuxt-request-context: useRequestContext() runs only in the Nuxt app; use getRequestContext(event) in Nitro server code.",
+      )
     } finally {
       await browser.close()
     }

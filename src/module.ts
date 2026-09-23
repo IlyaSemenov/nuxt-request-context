@@ -83,6 +83,16 @@ export default defineNuxtModule<ModuleOptions>({
     nuxt.hook("nitro:config", (config) => {
       config.alias ??= {}
       config.alias["#nuxt-request-context/provider"] = providerPath
+      // Nitro bundles some app files, such as @nuxt/image providers, but rejects Vue app imports.
+      // Resolve the explicit composable import to a stub there, and keep its app declaration.
+      config.alias["#nuxt-request-context/client"] = resolveModulePath("./runtime/nitro-client")
+      config.typescript ??= {}
+      config.typescript.tsConfig ??= {}
+      config.typescript.tsConfig.compilerOptions ??= {}
+      config.typescript.tsConfig.compilerOptions.paths ??= {}
+      config.typescript.tsConfig.compilerOptions.paths["#nuxt-request-context/client"] = [
+        client.dst,
+      ]
       // Resolve the generated re-export's Nuxt alias instead of externalizing it in development.
       config.externals ??= {}
       config.externals.inline ??= []
