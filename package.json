@@ -1,0 +1,66 @@
+{
+  "name": "nuxt-request-context",
+  "version": "0.0.0",
+  "packageManager": "bun@1.4.2",
+  "description": "Provide typed, request-specific public data to Nuxt pages and the browser.",
+  "author": "Ilya Semenov",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IlyaSemenov/nuxt-request-context.git"
+  },
+  "homepage": "https://github.com/IlyaSemenov/nuxt-request-context#readme",
+  "bugs": "https://github.com/IlyaSemenov/nuxt-request-context/issues",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/module.d.mts",
+      "import": "./dist/module.mjs"
+    },
+    "./provider": {
+      "types": "./dist/runtime/provider.d.ts",
+      "import": "./dist/runtime/provider.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": ["README.md", "dist", "templates"],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "build": "nuxt-module-build build && publint",
+    "prepare": "lefthook install",
+    "prepublishOnly": "bun run build",
+    "test": "bun test src",
+    "test:nuxt": "bun run build && bun tests/nuxt/run.ts",
+    "types:nuxt": "nuxt typecheck tests/fixtures/nuxt",
+    "types": "tsc --noEmit && tsc --noEmit -p tests/tsconfig.json"
+  },
+  "dependencies": {
+    "@nuxt/kit": "~4.5.2",
+    "devalue": "^5.6.2",
+    "h3": "^1.15.4",
+    "nitropack": "^2.13.4"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.31.1",
+    "@nuxt/module-builder": "^1.0.3",
+    "@nuxt/nitro-server": "~4.5.2",
+    "@playwright/test": "1.58.2",
+    "@tsconfig/bun": "^1.0.10",
+    "@types/bun": "^1.4.0",
+    "nuxt": "~4.5.2",
+    "oxfmt": "^0.67.0",
+    "oxlint": "^1.82.0",
+    "publint": "^0.3.22",
+    "typescript": "^5.9.3",
+    "vue-tsc": "^3.3.11"
+  },
+  "peerDependencies": {
+    "nuxt": "~4.5.2"
+  },
+  "engines": {
+    "node": "^22.19.0 || ^24.11.0 || >=26.0.0"
+  }
+}
