@@ -8,7 +8,7 @@ import type provider from "#nuxt-request-context/provider"
 
 type RequestContext = RequestContextForProvider<typeof provider>
 
-/** Read the context resolved for the initial page load. */
+/** Read the prepared context in a Nuxt app. */
 export function useRequestContext(): RequestContext {
   if (import.meta.client) return readClientRequestContext() as RequestContext
   const event = useRequestEvent()

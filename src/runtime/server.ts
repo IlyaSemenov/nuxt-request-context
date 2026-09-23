@@ -6,15 +6,13 @@ import { REQUEST_CONTEXT_SCRIPT_ID } from "./config"
 import { REQUEST_CONTEXT_KEY, type PreparedRequestContext } from "./context"
 import type { RequestContextErrorResponse, RequestContextProvider } from "./provider"
 
-/** Prepare request context before Vue renders and embed it in the HTML response. */
+/** Prepare context before Vue renders, and embed it in HTML responses. */
 export function setupRenderRequestContext<Context>(
   nitro: NitroApp,
   provider: RequestContextProvider<Context>,
 ) {
   nitro.hooks.hook("render:before", async (context) => {
     const { event } = context
-    // Nuxt renders payload requests through this hook without producing HTML.
-    if (/(?:^|\/)_payload\.(?:json|js)(?:\?.*)?$/.test(event.path)) return
 
     try {
       const requestContext = await provider.resolve(event)

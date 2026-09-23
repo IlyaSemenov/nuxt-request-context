@@ -7,7 +7,7 @@ export type RequestContextErrorResponse = NonNullable<RenderContext["response"]>
 /** The error handler result; no result uses the default 500 page. */
 export type RequestContextErrorResult = string | RequestContextErrorResponse | void
 
-/** Supply devalue-serializable data for one HTML request. */
+/** Supply devalue-serializable data for one Nuxt render request. */
 export interface RequestContextProvider<Context> {
   resolve(event: H3Event): Context | Promise<Context>
   /** Return HTML, a response, or nothing to use the default 500 page. */

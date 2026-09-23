@@ -22,16 +22,12 @@ function createHooks<Context>(provider: RequestContextProvider<Context>) {
   return hooks
 }
 
-test("skips Nuxt payload requests", async () => {
+test("prepares context for Nuxt payload requests", async () => {
   const resolvedPaths: string[] = []
-  const reportedErrors: unknown[] = []
   const hooks = createHooks({
     resolve: (event: H3Event) => {
       resolvedPaths.push(event.path)
-      throw new Error("provider should not run")
-    },
-    onError: (error: unknown) => {
-      reportedErrors.push(error)
+      return { path: event.path }
     },
   })
 
@@ -40,11 +36,14 @@ test("skips Nuxt payload requests", async () => {
     const render = { event, response: undefined as unknown }
     await hooks.get("render:before")!(render)
     expect(render.response).toBeUndefined()
-    expect(event.context[REQUEST_CONTEXT_KEY]).toBeUndefined()
+    expect(event.context[REQUEST_CONTEXT_KEY]).toMatchObject({ value: { path } })
   }
 
-  expect(resolvedPaths).toEqual([])
-  expect(reportedErrors).toEqual([])
+  expect(resolvedPaths).toEqual([
+    "/foo/_payload.json",
+    "/foo/_payload.js",
+    "/foo/_payload.json?key=value",
+  ])
 })
 
 test("keeps each request's context separate and provides it to the browser", async () => {

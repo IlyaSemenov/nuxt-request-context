@@ -47,6 +47,7 @@ const { user } = useRequestContext()
 ## Behavior
 
 When Nitro serves HTML dynamically, the provider runs once per request with SSR or `ssr: false`, and the module embeds the context in the HTML.
+
 Client-side navigation keeps the initial value; reload the page to get a new one after login or logout.
 The value is not reactive and must be [serializable by devalue](https://github.com/sveltejs/devalue).
 Treat the result as read-only while rendering so the server and browser receive the same value.
@@ -76,7 +77,7 @@ It throws if no context was prepared for the event.
 
 Everything your provider returns is sent to the requesting visitor's browser.
 Return only data that visitor may see, and never include credentials or server-only fields.
-Disable shared HTML caching, including CDN caching, for pages with per-user context.
+Disable shared caching of HTML and Nuxt payloads, including CDN caching, for pages with per-user context.
 Keep server-only data outside `resolve()` and read it separately in your server code.
 
 ## Errors

@@ -159,6 +159,11 @@ async function checkDevRouterOptions() {
 
   try {
     await waitForReady(server, origin, () => output)
+    const pageResponse = await fetch(origin + "/payload-test")
+    assert.equal(pageResponse.status, 200, output)
+    const payloadResponse = await fetch(origin + "/payload-test/_payload.json")
+    assert.equal(payloadResponse.status, 200, output)
+    assert.match(payloadResponse.headers.get("content-type") ?? "", /json/)
     const browser = await chromium.launch()
     try {
       const page = await browser.newPage()

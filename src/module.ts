@@ -13,7 +13,7 @@ import type {} from "@nuxt/nitro-server/augments"
 
 const { resolve: resolveModulePath } = createResolver(import.meta.url)
 
-/** Configure the application provider that supplies context for each HTML request. */
+/** Configure the application provider that supplies context for Nuxt render requests. */
 export interface ModuleOptions {
   provider: string
 }

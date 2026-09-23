@@ -1,6 +1,7 @@
 export default defineNuxtConfig({
   modules: [["nuxt-request-context", { provider: "./server/request-context.ts" }]],
   ssr: process.env.REQUEST_CONTEXT_TEST_SSR !== "false",
+  routeRules: { "/payload-test": { prerender: true } },
   devtools: { enabled: false },
   compatibilityDate: "2026-09-23",
 })
