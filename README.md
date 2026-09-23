@@ -44,6 +44,17 @@ const { user } = useRequestContext()
 // user: { id: string; name: string } | null
 ```
 
+For app files without auto-imports, or app files also checked by Nitro's server TypeScript configuration, import the composable explicitly:
+
+```ts
+import { useRequestContext } from "#nuxt-request-context/client"
+
+const { user } = useRequestContext()
+```
+
+This composable runs in the Nuxt app.
+Use [`getRequestContext(event)`](#server-access) in Nitro server code.
+
 ## Behavior
 
 When Nitro serves HTML dynamically, the provider runs once per request with SSR or `ssr: false`, and the module embeds the context in the HTML.

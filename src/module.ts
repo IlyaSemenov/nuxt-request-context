@@ -40,19 +40,28 @@ export default defineNuxtModule<ModuleOptions>({
       throw new Error(`nuxt-request-context: provider ${provider} must resolve to a file path.`)
     }
 
-    // The base alias also matches subpaths, so register the specific aliases first.
-    nuxt.options.alias["#nuxt-request-context/client"] = resolveModulePath("./runtime/client")
-    nuxt.options.alias["#nuxt-request-context/provider"] = providerPath
-    nuxt.options.alias["#nuxt-request-context"] = resolveModulePath("./runtime/context")
-
     addServerPlugin(resolveModulePath("./runtime/plugin"))
 
-    const composable = addTemplate({
-      filename: "request-context/composable.ts",
-      src: resolveModulePath("../templates/composable.ts"),
+    // App files can also be checked by Nitro, whose TypeScript aliases exclude #app.
+    // Keep the composable's declaration independent of its Nuxt runtime imports.
+    addTemplate({
+      filename: "request-context/client.d.ts",
+      src: resolveModulePath("../templates/client.d.ts"),
       write: true,
     })
-    addImports({ name: "useRequestContext", from: composable.dst })
+    const client = addTemplate({
+      filename: "request-context/client.js",
+      src: resolveModulePath("../templates/client.js"),
+      write: true,
+    })
+    addImports({ name: "useRequestContext", from: client.dst })
+
+    // The base alias also matches subpaths, so register the specific aliases first.
+    nuxt.options.alias["#nuxt-request-context/internal/client"] =
+      resolveModulePath("./runtime/client")
+    nuxt.options.alias["#nuxt-request-context/client"] = client.dst
+    nuxt.options.alias["#nuxt-request-context/provider"] = providerPath
+    nuxt.options.alias["#nuxt-request-context"] = resolveModulePath("./runtime/context")
 
     // Nitro skips TypeScript transforms inside Nuxt's node_modules cache.
     // Adjacent declarations type both automatic and explicit imports of the JavaScript module.

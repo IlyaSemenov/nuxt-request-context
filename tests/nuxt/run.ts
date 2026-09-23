@@ -88,12 +88,19 @@ async function checkMode(ssr: boolean) {
           `${path}: server plugin did not read the prepared context exactly once`,
         )
         assert.equal(html.includes('id="context-title"'), ssr, `${path}: unexpected SSR output`)
+        if (ssr) {
+          assert(
+            html.includes('<p id="same-context">true</p>'),
+            `${path}: explicit and automatic imports returned different contexts during SSR`,
+          )
+        }
 
         const page = await browser.newPage()
         try {
           await page.goto(origin + path)
           assert.equal(await page.locator("#context-title").textContent(), `Page ${path}`)
           assert.equal(await page.locator("#context-path").textContent(), path)
+          assert.equal(await page.locator("#same-context").textContent(), "true")
         } finally {
           await page.close()
         }

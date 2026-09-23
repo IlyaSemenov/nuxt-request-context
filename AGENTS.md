@@ -22,6 +22,7 @@ Do not catalog files or restate information evident from their names and locatio
 
 - Keep the `./provider` export and derive the generated `useRequestContext()` return type from the provider's `resolve()` result.
 - Generate server runtime templates as JavaScript with adjacent declarations so Nitro can bundle them from Nuxt's `node_modules` cache and preserve types for explicit imports.
+- Keep the generated composable's declarations independent of `#app` so app files can also be checked by Nitro's TypeScript program.
 - Resolve the provider before Vue renders each HTML request.
 - Store the value on the current request event and serialize it into the module-owned HTML data element in `head` for the browser.
 
