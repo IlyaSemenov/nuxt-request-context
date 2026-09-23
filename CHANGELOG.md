@@ -1,5 +1,11 @@
 # nuxt-request-context
 
+## 0.3.1
+
+### Patch Changes
+
+- 2fcaed7: Allow Nitro to bundle app files that import `useRequestContext()` from `#nuxt-request-context/client`; calling it in Nitro server code throws.
+
 ## 0.3.0
 
 ### Minor Changes
