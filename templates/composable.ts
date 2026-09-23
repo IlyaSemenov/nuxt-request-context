@@ -1,6 +1,7 @@
 import type { RequestContextForProvider } from "nuxt-request-context/provider"
-import { useRequestEvent } from "nuxt/app"
 
+// Avoid the Nuxt app barrel, which can create a cycle during app initialization.
+import { useRequestEvent } from "#app/composables/ssr"
 import { REQUEST_CONTEXT_KEY, type PreparedRequestContext } from "#nuxt-request-context"
 import { readClientRequestContext } from "#nuxt-request-context/client"
 import type provider from "#nuxt-request-context/provider"

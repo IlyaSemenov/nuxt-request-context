@@ -34,6 +34,22 @@ async function availablePort(): Promise<number> {
   return address.port
 }
 
+async function waitForReady(
+  server: ReturnType<typeof spawn>,
+  origin: string,
+  output: () => string,
+) {
+  for (let attempt = 0; attempt < 100; attempt++) {
+    if (server.exitCode !== null) break
+    try {
+      const response = await fetch(origin)
+      if (response.ok) return
+    } catch {}
+    await delay(200)
+  }
+  assert.fail(`Nuxt did not start:\n${output()}`)
+}
+
 async function checkMode(ssr: boolean) {
   runNuxt("build", ssr)
   if (ssr) runNuxt("typecheck", ssr)
@@ -54,19 +70,7 @@ async function checkMode(ssr: boolean) {
   })
 
   try {
-    let ready = false
-    for (let attempt = 0; attempt < 100; attempt++) {
-      if (server.exitCode !== null) break
-      try {
-        const response = await fetch(origin)
-        if (response.ok) {
-          ready = true
-          break
-        }
-      } catch {}
-      await delay(200)
-    }
-    assert(ready, `Nitro did not start:\n${output}`)
+    await waitForReady(server, origin, () => output)
 
     const browser = await chromium.launch()
     try {
@@ -122,5 +126,58 @@ async function checkMode(ssr: boolean) {
   }
 }
 
+async function checkDevRouterOptions() {
+  const port = await availablePort()
+  const origin = `http://127.0.0.1:${port}`
+  const server = spawn(
+    process.execPath,
+    ["run", "nuxt", "dev", fixture, "--host", "127.0.0.1", "--port", String(port)],
+    {
+      cwd: root,
+      env: { ...process.env, REQUEST_CONTEXT_TEST_SSR: "true" },
+      stdio: ["ignore", "pipe", "pipe"],
+    },
+  )
+  let output = ""
+  server.stdout.on("data", (chunk) => {
+    output += chunk
+  })
+  server.stderr.on("data", (chunk) => {
+    output += chunk
+  })
+
+  try {
+    await waitForReady(server, origin, () => output)
+    const browser = await chromium.launch()
+    try {
+      const page = await browser.newPage()
+      try {
+        const errors: string[] = []
+        page.on("pageerror", (error) => errors.push(error.message))
+        const response = await page.goto(origin + "/request-1")
+        assert.equal(response?.status(), 200, output)
+        const title = await page
+          .locator("#context-title")
+          .textContent({ timeout: 10_000 })
+          .catch(() => null)
+        assert.equal(title, "Page /request-1", `Browser errors: ${errors.join("; ")}\n${output}`)
+        assert.deepEqual(errors, [])
+      } finally {
+        await page.close()
+      }
+    } finally {
+      await browser.close()
+    }
+    console.log("Dev router options: request context works without browser errors")
+  } finally {
+    if (server.exitCode === null) {
+      const exited = new Promise<void>((resolve) => server.once("exit", () => resolve()))
+      server.kill()
+      await exited
+    }
+  }
+}
+
 await checkMode(true)
 await checkMode(false)
+await checkDevRouterOptions()
