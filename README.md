@@ -106,7 +106,7 @@ For example, report the error and redirect to `/error`:
 ```ts
 export default defineRequestContextProvider(resolveContext, {
   onError(error, event) {
-    reportError(error)
+    reportErrorToSentry(error)
     return { statusCode: 302, headers: { Location: "/error" } }
   },
 })
