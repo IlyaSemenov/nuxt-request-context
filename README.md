@@ -29,11 +29,9 @@ For example, `server/request-context.ts` can use your own session helper to expo
 import { getPublicUserFromSession } from "./auth"
 import { defineRequestContextProvider } from "nuxt-request-context/provider"
 
-export default defineRequestContextProvider({
-  async resolve(event) {
-    const user = await getPublicUserFromSession(event)
-    return { user }
-  },
+export default defineRequestContextProvider(async (event) => {
+  const user = await getPublicUserFromSession(event)
+  return { user }
 })
 ```
 
@@ -89,16 +87,26 @@ It throws if no context was prepared for the event.
 Everything your provider returns is sent to the requesting visitor's browser.
 Return only data that visitor may see, and never include credentials or server-only fields.
 Disable shared caching of HTML and Nuxt payloads, including CDN caching, for pages with per-user context.
-Keep server-only data outside `resolve()` and read it separately in your server code.
+Keep server-only data outside the provider result and read it separately in your server code.
 
 ## Errors
 
-If `resolve()` fails or its result cannot be serialized, the module responds with a static HTTP 500 page.
-Optionally provide `onError(error, event)` to report the error or customize the response:
+If the provider throws or its result cannot be serialized, the module responds with a static HTTP 500 page.
+Optionally pass `onError(error, event)` in the second argument to report the error or customize the response:
 
 - Return an HTML string for the 500 page.
 - Return a response object to set the status, headers, or body.
-  For example, `{ statusCode: 302, headers: { Location: "/error" } }` redirects to `/error`.
 
 A response object replaces the default page and uses status 500 if you omit `statusCode`.
 Only redirect to a page that can load when the provider fails.
+
+For example, report the error and redirect to `/error`:
+
+```ts
+export default defineRequestContextProvider(resolveContext, {
+  onError(error, event) {
+    reportError(error)
+    return { statusCode: 302, headers: { Location: "/error" } }
+  },
+})
+```

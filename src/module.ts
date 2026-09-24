@@ -27,7 +27,7 @@ export default defineNuxtModule<ModuleOptions>({
   defaults: { provider: "" },
   setup({ provider }, nuxt) {
     if (!provider) {
-      throw new Error("nuxt-request-context: configure a provider with resolve(event).")
+      throw new Error("nuxt-request-context: configure a provider file.")
     }
 
     const aliasedPath = resolveAlias(provider, nuxt.options.alias)
