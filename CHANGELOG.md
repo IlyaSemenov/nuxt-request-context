@@ -1,5 +1,11 @@
 # nuxt-request-context
 
+## 0.4.0
+
+### Minor Changes
+
+- c45d1c5: `defineRequestContextProvider()` now takes the resolver function as its first argument and options such as `onError` as its second argument.
+
 ## 0.3.1
 
 ### Patch Changes
