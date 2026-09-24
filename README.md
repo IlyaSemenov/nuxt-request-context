@@ -96,6 +96,7 @@ Optionally pass `onError(error, event)` in the second argument to report the err
 
 - Return an HTML string for the 500 page.
 - Return a response object to set the status, headers, or body.
+- Return nothing to keep the default 500 page, for example after only reporting the error.
 
 A response object replaces the default page and uses status 500 if you omit `statusCode`.
 Only redirect to a page that can load when the provider fails.
