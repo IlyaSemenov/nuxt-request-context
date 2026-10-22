@@ -1,5 +1,11 @@
 # nuxt-request-context
 
+## 0.4.1
+
+### Patch Changes
+
+- 6896767: Allow devalue 6 so Nuxt 4.6 apps bundle a single devalue version.
+
 ## 0.4.0
 
 ### Minor Changes
